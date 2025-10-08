@@ -67,3 +67,36 @@ def _declarar_paciente_normal(self, pistas, ubicacion):
                 f"Vi colores llamativos en la {ubicacion} durante el día"
             ])
         return random.choice(declaraciones)
+
+def interrogar(self, pistas_encontradas):
+        if self._es_impostor:
+            respuestas = [
+                "No recuerdo nada fuera de lo normal hoy",
+                "Estuve concentrado en mi terapia todo el día",
+                "Solo hice lo que normalmente hacemos aquí",
+                "Me sentí un poco ansioso pero es normal en mi condición"
+            ]
+            if any("labial" in pista.lower() for pista in pistas_encontradas):
+                respuestas.extend([
+                    "¿Maquillaje? No, yo no uso esas cosas",
+                    "No sé nada sobre productos de belleza"
+                ])
+            if any("reloj" in pista.lower() for pista in pistas_encontradas):
+                respuestas.extend([
+                    "Siempre pierdo la noción del tiempo aquí",
+                    "Los relojes me ponen nervioso, evito mirarlos"
+                ])
+        else:
+            respuestas = [
+                "Hoy fue un día como cualquier otro",
+                "Me sentí bastante bien durante el día",
+                "Participé en todas las actividades programadas",
+                "Conversé con varios compañeros hoy",
+                "Estuve un poco distraído pero nada grave"
+            ]
+            if any("labial" in pista.lower() for pista in pistas_encontradas):
+                respuestas.extend([
+                    "Vi a alguien con las manos manchadas hoy",
+                    "Noté un olor peculiar en el aire"
+                ])
+        return random.choice(respuestas)

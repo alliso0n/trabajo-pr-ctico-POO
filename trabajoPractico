@@ -156,6 +156,32 @@ class JuegoDetective:
                 "Ves llaves oxidadas de lugares desconocidos"
             ])
         ]
+class SaltoTemporal:
+    def __init__(self):
+        self._usado = False
+        self._estado_guardado = None
+
+    def guardar_estado(self, juego):
+        if not self._usado:
+            self._estado_guardado = {
+                "dia_actual": juego.dia_actual,
+                "pistas": list(juego.pistas_encontradas),
+                "ubicaciones": [(u.nombre, list(u.pistas_restantes)) for u in juego.ubicaciones]
+            }
+
+    def regresar_en_el_tiempo(self, juego):
+        if self._usado or not self._estado_guardado:
+            return False
+        estado = self._estado_guardado
+        juego.dia_actual = estado["dia_actual"]
+        juego.pistas_encontradas = estado["pistas"]
+        for u in juego.ubicaciones:
+            for nombre, pistas_restantes in estado["ubicaciones"]:
+                if u.nombre == nombre:
+                    u.pistas_restantes = pistas_restantes
+        self._usado = True
+        return True
+
 # ======================= INTERFAZ GRÁFICA =======================
 
 class JuegoGUI:
@@ -164,9 +190,11 @@ class JuegoGUI:
         self.root.title("🧠 Juego del Impostor - Psiquiátrico 🕵️‍♂️")
         self.juego = JuegoDetective()
         self.juego.inicializar_juego()
+        self.salto_temporal = SaltoTemporal()
         self.crear_interfaz()
         self.investigado_hoy = False
         self.interrogado_hoy = False
+
 
     def crear_interfaz(self):
         self.texto = tk.Text(self.root, width=80, height=25, wrap="word", bg="#f9f9f9")
@@ -183,6 +211,8 @@ class JuegoGUI:
         self.boton_siguiente.pack(side="left", padx=10)
 
         self.mostrar_intro()
+        self.boton_tiempo = tk.Button(self.root, text="⏳ Regresar en el tiempo", command=self.regresar_tiempo)
+        self.boton_tiempo.pack(side="left", padx=10)
 
     def mostrar_intro(self):
         self.texto.insert(tk.END, "=== INVESTIGACIÓN PSIQUIÁTRICA ===\n")
@@ -197,6 +227,7 @@ class JuegoGUI:
         self.boton_siguiente.config(state="disabled")
         self.investigado_hoy = False
         self.interrogado_hoy = False
+        self.salto_temporal.guardar_estado(self.juego)
 
     def investigar(self):
         ubicaciones = [u for u in self.juego.ubicaciones if u.tiene_pistas()]
@@ -276,6 +307,15 @@ class JuegoGUI:
         else:
             messagebox.showwarning("Acusación inválida", "No elegiste correctamente.")
         self.root.destroy()
+        
+    def regresar_tiempo(self):
+      if self.salto_temporal.regresar_en_el_tiempo(self.juego):
+        self.texto.insert(tk.END, "\n⏳ ¡Has regresado en el tiempo! El día vuelve a su estado anterior.\n")
+        self.mostrar_estado_dia()
+        self.boton_tiempo.config(state="disabled")
+      else:
+        messagebox.showinfo("No disponible", "Ya usaste tu poder de regresar en el tiempo.")
+
 
 # ======================= EJECUCIÓN =======================
 if __name__ == "__main__":

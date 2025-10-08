@@ -156,6 +156,127 @@ class JuegoDetective:
                 "Ves llaves oxidadas de lugares desconocidos"
             ])
         ]
+# ======================= INTERFAZ GRÁFICA =======================
+
+class JuegoGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("🧠 Juego del Impostor - Psiquiátrico 🕵️‍♂️")
+        self.juego = JuegoDetective()
+        self.juego.inicializar_juego()
+        self.crear_interfaz()
+        self.investigado_hoy = False
+        self.interrogado_hoy = False
+
+    def crear_interfaz(self):
+        self.texto = tk.Text(self.root, width=80, height=25, wrap="word", bg="#f9f9f9")
+        self.texto.pack(pady=10)
+
+        self.boton_investigar = tk.Button(self.root, text="🔍 Investigar", command=self.investigar)
+        self.boton_investigar.pack(side="left", padx=10)
+
+        self.boton_interrogar = tk.Button(self.root, text="❓ Interrogar", command=self.interrogar, state="disabled")
+        self.boton_interrogar.pack(side="left", padx=10)
+
+        self.boton_siguiente = tk.Button(self.root, text="⏭️ Siguiente Día", command=self.siguiente_dia,
+                                         state="disabled")
+        self.boton_siguiente.pack(side="left", padx=10)
+
+        self.mostrar_intro()
+
+    def mostrar_intro(self):
+        self.texto.insert(tk.END, "=== INVESTIGACIÓN PSIQUIÁTRICA ===\n")
+        self.texto.insert(tk.END, "Hay 3 pacientes, pero uno es un impostor con graves problemas psicológicos.\n")
+        self.texto.insert(tk.END, f"Tienes {self.juego.total_dias} días para descubrirlo.\n\n")
+        self.mostrar_estado_dia()
+
+    def mostrar_estado_dia(self):
+        self.texto.insert(tk.END, f"\n🗓️ DÍA {self.juego.dia_actual}\n{'=' * 40}\n")
+        self.boton_investigar.config(state="normal")
+        self.boton_interrogar.config(state="disabled")
+        self.boton_siguiente.config(state="disabled")
+        self.investigado_hoy = False
+        self.interrogado_hoy = False
+
+    def investigar(self):
+        ubicaciones = [u for u in self.juego.ubicaciones if u.tiene_pistas()]
+        if not ubicaciones:
+            messagebox.showinfo("Sin pistas", "No hay más ubicaciones para investigar.")
+            return
+        nombres = [str(u) for u in ubicaciones]
+        eleccion = simpledialog.askinteger("Investigar", f"Elige una ubicación:\n" + "\n".join(
+            [f"{i + 1}. {n}" for i, n in enumerate(nombres)]))
+        if eleccion is None or eleccion < 1 or eleccion > len(ubicaciones):
+            return
+        ubicacion = ubicaciones[eleccion - 1]
+        pista = ubicacion.obtener_pista()
+        if pista:
+            self.texto.insert(tk.END, f"\n🎯 {pista}\n")
+            self.juego.pistas_encontradas.append(pista)
+        else:
+            self.texto.insert(tk.END, "\nNo encontraste nada nuevo aquí.\n")
+        self.declaraciones(ubicacion.nombre)
+        self.investigado_hoy = True
+        self.boton_investigar.config(state="disabled")
+        self.boton_interrogar.config(state="normal")
+
+    def declaraciones(self, ubicacion_nombre):
+        self.texto.insert(tk.END, "\n📝 DECLARACIONES DEL DÍA:\n")
+        for p in self.juego.personajes:
+            declaracion = p.declarar_dia(self.juego.pistas_encontradas, ubicacion_nombre)
+            p.agregar_comportamiento(declaracion)
+            self.texto.insert(tk.END, f"- {p.get_nombre()}: {declaracion}\n")
+
+    def interrogar(self):
+        if not self.investigado_hoy:
+            messagebox.showwarning("Acción no permitida", "Primero debes investigar una ubicación.")
+            return
+
+        nombres = [p.get_nombre() for p in self.juego.personajes]
+        eleccion = simpledialog.askinteger("Interrogatorio", f"¿A quién deseas interrogar?\n" + "\n".join(
+            [f"{i + 1}. {n}" for i, n in enumerate(nombres)]) + "\n4. No interrogar a nadie")
+        if eleccion in [1, 2, 3]:
+            personaje = self.juego.personajes[eleccion - 1]
+            respuesta = personaje.interrogar(self.juego.pistas_encontradas)
+            self.texto.insert(tk.END, f"\n❓ {personaje.get_nombre()}: \"{respuesta}\"\n")
+        else:
+            self.texto.insert(tk.END, "\nNo interrogarás a nadie hoy.\n")
+
+        self.interrogado_hoy = True
+        self.boton_interrogar.config(state="disabled")
+        self.boton_siguiente.config(state="normal")
+
+    def siguiente_dia(self):
+        if not self.interrogado_hoy:
+            messagebox.showwarning("Acción no permitida",
+                                   "Debes interrogar a alguien (o decidir no hacerlo) antes de pasar al siguiente día.")
+            return
+
+        self.juego.dia_actual += 1
+        if self.juego.dia_actual > self.juego.total_dias:
+            self.fase_acusacion()
+        else:
+            self.mostrar_estado_dia()
+
+    def fase_acusacion(self):
+        self.texto.insert(tk.END, "\n⏰ FASE FINAL - ACUSACIÓN\n")
+        self.texto.insert(tk.END, "\n📊 Pistas encontradas:\n")
+        for i, pista in enumerate(self.juego.pistas_encontradas, 1):
+            self.texto.insert(tk.END, f"{i}. {pista}\n")
+        nombres = [p.get_nombre() for p in self.juego.personajes]
+        eleccion = simpledialog.askinteger("Acusación", "¿Quién es el impostor?\n" + "\n".join(
+            [f"{i + 1}. {n}" for i, n in enumerate(nombres)]))
+        if eleccion and 1 <= eleccion <= len(self.juego.personajes):
+            elegido = self.juego.personajes[eleccion - 1]
+            if elegido.es_impostor():
+                messagebox.showinfo("🎉 ¡Correcto!", f"{elegido.get_nombre()} era el impostor.")
+            else:
+                messagebox.showerror("💀 Incorrecto",
+                                     f"{elegido.get_nombre()} era inocente.\nEl impostor era {self.juego.impostor_real.get_nombre()}.")
+        else:
+            messagebox.showwarning("Acusación inválida", "No elegiste correctamente.")
+        self.root.destroy()
+
 # ======================= EJECUCIÓN =======================
 if _name_ == "_main_":
     root = tk.Tk()

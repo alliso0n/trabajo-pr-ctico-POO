@@ -51,3 +51,19 @@ class Personaje:
                 f"La {ubicacion} me recordó que debemos mantener todo seguro"
             ])
         return random.choice(declaraciones)
+
+def _declarar_paciente_normal(self, pistas, ubicacion):
+        declaraciones = [
+            f"Estuve en la {ubicacion} viendo la televisión",
+            f"En la {ubicacion} conversé con otros pacientes",
+            f"Pasé el día en la {ubicacion} leyendo revistas",
+            f"En la {ubicacion} ayudé a ordenar algunas cosas",
+            f"Dediqué la tarde en la {ubicacion} a escribir en mi diario",
+            f"En la {ubicacion} participé en actividades grupales"
+        ]
+        if any("labial" in pista.lower() for pista in pistas):
+            declaraciones.extend([
+                f"En la {ubicacion} noté que había cosas de maquillaje",
+                f"Vi colores llamativos en la {ubicacion} durante el día"
+            ])
+        return random.choice(declaraciones)

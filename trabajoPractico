@@ -28,7 +28,7 @@ class Personaje:
             return self._declarar_impostor(pistas_encontradas, ubicacion_investigada)
         else:
             return self._declarar_paciente_normal(pistas_encontradas, ubicacion_investigada)
- def _declarar_impostor(self, pistas, ubicacion):
+    def _declarar_impostor(self, pistas, ubicacion):
         declaraciones = [
             f"Estuve en la {ubicacion} haciendo mis ejercicios de relajación",
             f"Pasé el día en la {ubicacion} meditando sobre mi recuperación",
@@ -52,7 +52,7 @@ class Personaje:
             ])
         return random.choice(declaraciones)
 
-def _declarar_paciente_normal(self, pistas, ubicacion):
+    def _declarar_paciente_normal(self, pistas, ubicacion):
         declaraciones = [
             f"Estuve en la {ubicacion} viendo la televisión",
             f"En la {ubicacion} conversé con otros pacientes",
@@ -68,7 +68,7 @@ def _declarar_paciente_normal(self, pistas, ubicacion):
             ])
         return random.choice(declaraciones)
 
-def interrogar(self, pistas_encontradas):
+    def interrogar(self, pistas_encontradas):
         if self._es_impostor:
             respuestas = [
                 "No recuerdo nada fuera de lo normal hoy",
@@ -115,7 +115,7 @@ class Ubicacion:
     def tiene_pistas(self):
         return len(self.pistas_restantes) > 0
 
-    def _str_(self):
+    def __str__(self):
         pistas_restantes = len(self.pistas_restantes)
         return f"{self.nombre} ({pistas_restantes} pista{'s' if pistas_restantes != 1 else ''})"
 
@@ -278,7 +278,7 @@ class JuegoGUI:
         self.root.destroy()
 
 # ======================= EJECUCIÓN =======================
-if _name_ == "_main_":
+if __name__ == "__main__":
     root = tk.Tk()
     gui = JuegoGUI(root)
     root.mainloop()

@@ -28,3 +28,26 @@ class Personaje:
             return self._declarar_impostor(pistas_encontradas, ubicacion_investigada)
         else:
             return self._declarar_paciente_normal(pistas_encontradas, ubicacion_investigada)
+ def _declarar_impostor(self, pistas, ubicacion):
+        declaraciones = [
+            f"Estuve en la {ubicacion} haciendo mis ejercicios de relajación",
+            f"Pasé el día en la {ubicacion} meditando sobre mi recuperación",
+            f"En la {ubicacion} practiqué mis técnicas de control mental",
+            f"Dediqué el día en la {ubicacion} a organizar mis pensamientos"
+        ]
+        if any("labial" in pista.lower() for pista in pistas):
+            declaraciones.extend([
+                f"En la {ubicacion} noté que alguien había estado maquillándose",
+                f"Vi algo rojo en la {ubicacion} pero no le presté atención"
+            ])
+        if any("reloj" in pista.lower() for pista in pistas):
+            declaraciones.extend([
+                f"En la {ubicacion} me fijé en la hora frecuentemente",
+                f"El tiempo pasa lento aquí, lo noté en la {ubicacion}"
+            ])
+        if any("llave" in pista.lower() for pista in pistas):
+            declaraciones.extend([
+                f"En la {ubicacion} pensé en lo importante que son las cerraduras",
+                f"La {ubicacion} me recordó que debemos mantener todo seguro"
+            ])
+        return random.choice(declaraciones)

@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog
 
 class Personaje:
-    def _init_(self, nombre):
+    def __init__(self, nombre):
         self._nombre = nombre
         self._es_impostor = False
         self._comportamientos_dia = []
@@ -102,7 +102,7 @@ def interrogar(self, pistas_encontradas):
         return random.choice(respuestas)
 
 class Ubicacion:
-    def _init_(self, nombre, pistas):
+    def __init__(self, nombre, pistas):
         self.nombre = nombre
         self.pistas = pistas
         self.pistas_restantes = pistas.copy()
@@ -120,7 +120,7 @@ class Ubicacion:
         return f"{self.nombre} ({pistas_restantes} pista{'s' if pistas_restantes != 1 else ''})"
 
 class JuegoDetective:
-    def _init_(self):
+    def __init__(self):
         self.personajes = []
         self.ubicaciones = []
         self.dia_actual = 1

@@ -1,3 +1,30 @@
 import random
 import tkinter as tk
 from tkinter import messagebox, simpledialog
+
+class Personaje:
+    def _init_(self, nombre):
+        self._nombre = nombre
+        self._es_impostor = False
+        self._comportamientos_dia = []
+
+    def get_nombre(self):
+        return self._nombre
+
+    def es_impostor(self):
+        return self._es_impostor
+
+    def set_impostor(self, valor):
+        self._es_impostor = valor
+
+    def agregar_comportamiento(self, comportamiento):
+        self._comportamientos_dia.append(comportamiento)
+
+    def get_ultimo_comportamiento(self):
+        return self._comportamientos_dia[-1] if self._comportamientos_dia else "No hay registro"
+
+    def declarar_dia(self, pistas_encontradas, ubicacion_investigada):
+        if self._es_impostor:
+            return self._declarar_impostor(pistas_encontradas, ubicacion_investigada)
+        else:
+            return self._declarar_paciente_normal(pistas_encontradas, ubicacion_investigada)
